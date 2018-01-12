@@ -13,25 +13,29 @@
  */
 package com.querydsl.sql.codegen;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.io.IOException;
-import java.sql.SQLException;
-
-import org.junit.Before;
-import org.junit.Test;
-
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 import com.querydsl.core.alias.Gender;
-import com.querydsl.sql.*;
+import com.querydsl.sql.AbstractJDBCTest;
+import com.querydsl.sql.Configuration;
+import com.querydsl.sql.EncryptedString;
+import com.querydsl.sql.HSQLDBTemplates;
+import com.querydsl.sql.QPerson;
+import com.querydsl.sql.SQLQuery;
 import com.querydsl.sql.dml.SQLInsertClause;
 import com.querydsl.sql.dml.SQLUpdateClause;
 import com.querydsl.sql.types.EnumByNameType;
 import com.querydsl.sql.types.StringType;
 import com.querydsl.sql.types.UtilDateType;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.io.File;
+import java.io.IOException;
+import java.sql.SQLException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class CustomTypesTest extends AbstractJDBCTest {
 
