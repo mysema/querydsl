@@ -40,11 +40,11 @@ import java.util.Comparator;
 import java.util.regex.Pattern;
 
 /**
- * {@code AbstractMetaDataExportMojo} is the base class for {@link MetaDataExporter} usage
+ * {@code AbstractSqlMetaDataExportMojo} is the base class for {@link MetaDataExporter} usage
  *
  * @author tiwe
  */
-public class AbstractMetaDataExportMojo extends AbstractMojo {
+public class AbstractSqlMetaDataExportMojo extends AbstractMojo {
 
     /**
      * maven project
@@ -121,37 +121,23 @@ public class AbstractMetaDataExportMojo extends AbstractMojo {
      */
     private String packageName;
 
+    private static final Pattern BLANK_VALUE_PATTERN = Pattern.compile("(^|,)BLANK(,|$)", Pattern.CASE_INSENSITIVE);
+    private static final String BLANK_VALUE_REPLACEMENT = "$1$2";
     /**
      * package name for bean sources (default: packageName)
+     *
      * @parameter
      */
     private String beanPackageName;
-
     /**
      * schemaPattern a schema name pattern; must match the schema name
-     *        as it is stored in the database; "" retrieves those without a schema;
-     *        {@code null} means that the schema name should not be used to narrow
-     *        the search (default: null)
+     * as it is stored in the database; "" retrieves those without a schema;
+     * {@code null} means that the schema name should not be used to narrow
+     * the search (default: null)
      *
      * @parameter
      */
     private String schemaPattern;
-
-    /**
-     * a catalog name; must match the catalog name as it
-     *      is stored in the database; "" retrieves those without a catalog;
-     *      <code>null</code> means that the catalog name should not be used to narrow
-     *      the search
-     */
-    private String catalogPattern;
-
-    /**
-     * tableNamePattern a table name pattern; must match the
-    *        table name as it is stored in the database (default: null)
-     *
-     * @parameter
-     */
-    private String tableNamePattern;
 
     /**
      * target source folder to create the sources into (e.g. target/generated-sources/java)
@@ -383,7 +369,20 @@ public class AbstractMetaDataExportMojo extends AbstractMojo {
      * @parameter default-value=false property="maven.querydsl.skip"
      */
     private boolean skip;
-
+    /**
+     * a catalog name; must match the catalog name as it
+     * is stored in the database; "" retrieves those without a catalog;
+     * <code>null</code> means that the catalog name should not be used to narrow
+     * the search
+     */
+    private String catalogPattern;
+    /**
+     * tableNamePattern a table name pattern; must match the
+     * table name as it is stored in the database (default: null)
+     *
+     * @parameter
+     */
+    private String tableNamePattern;
     /**
      * The fully qualified class name of the <em>Single-Element Annotation</em> (with <code>String</code> element) to put on the generated sources.Defaults to
      * <code>javax.annotation.Generated</code> or <code>javax.annotation.processing.Generated</code> depending on the java version.
@@ -393,7 +392,151 @@ public class AbstractMetaDataExportMojo extends AbstractMojo {
      */
     private String generatedAnnotationClass;
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private static String processBlankValues(String value) {
+        if (value == null) {
+            return null;
+        }
+        return BLANK_VALUE_PATTERN.matcher(value).replaceAll(BLANK_VALUE_REPLACEMENT);
+    }
+
+    private static String emptyIfSetToBlank(String value) {
+        boolean setToBlank = value == null || value.equalsIgnoreCase("BLANK");
+        return setToBlank ? "" : value;
+    }
+
+    protected boolean isForTest() {
+        return false;
+    }
+
+    public void setProject(MavenProject project) {
+        this.project = project;
+    }
+
+    public void setServer(String server) {
+        this.server = server;
+    }
+
+    public void setJdbcDriver(String jdbcDriver) {
+        this.jdbcDriver = jdbcDriver;
+    }
+
+    public void setJdbcUrl(String jdbcUrl) {
+        this.jdbcUrl = jdbcUrl;
+    }
+
+    public void setJdbcUser(String jdbcUser) {
+        this.jdbcUser = jdbcUser;
+    }
+
+    public void setJdbcPassword(String jdbcPassword) {
+        this.jdbcPassword = jdbcPassword;
+    }
+
+    public void setNamePrefix(String namePrefix) {
+        this.namePrefix = namePrefix;
+    }
+
+    public void setNameSuffix(String nameSuffix) {
+        this.nameSuffix = nameSuffix;
+    }
+
+    public void setBeanInterfaces(String[] beanInterfaces) {
+        this.beanInterfaces = beanInterfaces;
+    }
+
+    public void setBeanPrefix(String beanPrefix) {
+        this.beanPrefix = beanPrefix;
+    }
+
+    public void setBeanSuffix(String beanSuffix) {
+        this.beanSuffix = beanSuffix;
+    }
+
+    public void setPackageName(String packageName) {
+        this.packageName = packageName;
+    }
+
+    public void setBeanPackageName(String beanPackageName) {
+        this.beanPackageName = beanPackageName;
+    }
+
+    public void setSchemaPattern(String schemaPattern) {
+        this.schemaPattern = schemaPattern;
+    }
+
+    public void setTableNamePattern(String tableNamePattern) {
+        this.tableNamePattern = tableNamePattern;
+    }
+
+    public void setTargetFolder(String targetFolder) {
+        this.targetFolder = targetFolder;
+    }
+
+    public void setNamingStrategyClass(String namingStrategyClass) {
+        this.namingStrategyClass = namingStrategyClass;
+    }
+
+    public void setBeanSerializerClass(String beanSerializerClass) {
+        this.beanSerializerClass = beanSerializerClass;
+    }
+
+    public void setSerializerClass(String serializerClass) {
+        this.serializerClass = serializerClass;
+    }
+
+    public void setExportBeans(boolean exportBeans) {
+        this.exportBeans = exportBeans;
+    }
+
+    public void setInnerClassesForKeys(boolean innerClassesForKeys) {
+        this.innerClassesForKeys = innerClassesForKeys;
+    }
+
+    public void setValidationAnnotations(boolean validationAnnotations) {
+        this.validationAnnotations = validationAnnotations;
+    }
+
+    public void setColumnAnnotations(boolean columnAnnotations) {
+        this.columnAnnotations = columnAnnotations;
+    }
+
+    public void setCustomTypes(String[] customTypes) {
+        this.customTypes = customTypes;
+    }
+
+    public void setCreateScalaSources(boolean createScalaSources) {
+        this.createScalaSources = createScalaSources;
+    }
+
+    public void setSchemaToPackage(boolean schemaToPackage) {
+        this.schemaToPackage = schemaToPackage;
+    }
+
+    public void setLowerCase(boolean lowerCase) {
+        this.lowerCase = lowerCase;
+    }
+
+    public void setTypeMappings(TypeMapping[] typeMappings) {
+        this.typeMappings = typeMappings;
+    }
+
+    public void setNumericMappings(NumericMapping[] numericMappings) {
+        this.numericMappings = numericMappings;
+    }
+
+    public void setRenameMappings(RenameMapping[] renameMappings) {
+        this.renameMappings = renameMappings;
+    }
+
+    public void setImports(String[] imports) {
+        this.imports = imports;
+    }
+
+    public void setSkip(boolean skip) {
+        this.skip = skip;
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
         if (isForTest()) {
@@ -561,158 +704,11 @@ public class AbstractMetaDataExportMojo extends AbstractMojo {
 
     }
 
-    protected boolean isForTest() {
-        return false;
-    }
-
-    public void setProject(MavenProject project) {
-        this.project = project;
-    }
-
-    public void setServer(String server) {
-        this.server = server;
-    }
-
-    public void setJdbcDriver(String jdbcDriver) {
-        this.jdbcDriver = jdbcDriver;
-    }
-
-    public void setJdbcUrl(String jdbcUrl) {
-        this.jdbcUrl = jdbcUrl;
-    }
-
-    public void setJdbcUser(String jdbcUser) {
-        this.jdbcUser = jdbcUser;
-    }
-
-    public void setJdbcPassword(String jdbcPassword) {
-        this.jdbcPassword = jdbcPassword;
-    }
-
-    public void setNamePrefix(String namePrefix) {
-        this.namePrefix = namePrefix;
-    }
-
-    public void setNameSuffix(String nameSuffix) {
-        this.nameSuffix = nameSuffix;
-    }
-
-    public void setBeanInterfaces(String[] beanInterfaces) {
-        this.beanInterfaces = beanInterfaces;
-    }
-
-    public void setBeanPrefix(String beanPrefix) {
-        this.beanPrefix = beanPrefix;
-    }
-
-    public void setBeanSuffix(String beanSuffix) {
-        this.beanSuffix = beanSuffix;
-    }
-
-    public void setPackageName(String packageName) {
-        this.packageName = packageName;
-    }
-
-    public void setBeanPackageName(String beanPackageName) {
-        this.beanPackageName = beanPackageName;
-    }
-
     public void setCatalogPattern(String catalogPattern) {
         this.catalogPattern = catalogPattern;
-    }
-
-    public void setSchemaPattern(String schemaPattern) {
-        this.schemaPattern = schemaPattern;
-    }
-
-    public void setTableNamePattern(String tableNamePattern) {
-        this.tableNamePattern = tableNamePattern;
-    }
-
-    public void setTargetFolder(String targetFolder) {
-        this.targetFolder = targetFolder;
-    }
-
-    public void setNamingStrategyClass(String namingStrategyClass) {
-        this.namingStrategyClass = namingStrategyClass;
-    }
-
-    public void setBeanSerializerClass(String beanSerializerClass) {
-        this.beanSerializerClass = beanSerializerClass;
-    }
-
-    public void setSerializerClass(String serializerClass) {
-        this.serializerClass = serializerClass;
-    }
-
-    public void setExportBeans(boolean exportBeans) {
-        this.exportBeans = exportBeans;
-    }
-
-    public void setInnerClassesForKeys(boolean innerClassesForKeys) {
-        this.innerClassesForKeys = innerClassesForKeys;
-    }
-
-    public void setValidationAnnotations(boolean validationAnnotations) {
-        this.validationAnnotations = validationAnnotations;
-    }
-
-    public void setColumnAnnotations(boolean columnAnnotations) {
-        this.columnAnnotations = columnAnnotations;
-    }
-
-    public void setCustomTypes(String[] customTypes) {
-        this.customTypes = customTypes;
-    }
-
-    public void setCreateScalaSources(boolean createScalaSources) {
-        this.createScalaSources = createScalaSources;
-    }
-
-    public void setSchemaToPackage(boolean schemaToPackage) {
-        this.schemaToPackage = schemaToPackage;
-    }
-
-    public void setLowerCase(boolean lowerCase) {
-        this.lowerCase = lowerCase;
-    }
-
-    public void setTypeMappings(TypeMapping[] typeMappings) {
-        this.typeMappings = typeMappings;
-    }
-
-    public void setNumericMappings(NumericMapping[] numericMappings) {
-        this.numericMappings = numericMappings;
-    }
-
-    public void setRenameMappings(RenameMapping[] renameMappings) {
-        this.renameMappings = renameMappings;
-    }
-
-    public void setImports(String[] imports) {
-        this.imports = imports;
-    }
-
-    public void setSkip(boolean skip) {
-        this.skip = skip;
     }
 
     public void setGeneratedAnnotationClass(String generatedAnnotationClass) {
         this.generatedAnnotationClass = generatedAnnotationClass;
     }
-
-    private static String emptyIfSetToBlank(String value) {
-        boolean setToBlank = value == null || value.equalsIgnoreCase("BLANK");
-        return setToBlank ? "" : value;
-    }
-
-    private static String processBlankValues(String value) {
-        if (value == null) {
-            return null;
-        }
-        return BLANK_VALUE_PATTERN.matcher(value).replaceAll(BLANK_VALUE_REPLACEMENT);
-    }
-
-    private static final Pattern BLANK_VALUE_PATTERN = Pattern.compile("(^|,)BLANK(,|$)", Pattern.CASE_INSENSITIVE);
-    private static final String BLANK_VALUE_REPLACEMENT = "$1$2";
 }

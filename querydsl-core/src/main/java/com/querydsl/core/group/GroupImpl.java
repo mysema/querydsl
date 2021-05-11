@@ -24,19 +24,18 @@ import com.querydsl.core.types.Ops;
  *
  * @author sasa
  * @author tiwe
- *
  */
 public class GroupImpl implements Group {
 
-    private final Map<Expression<?>, GroupCollector<?,?>> groupCollectorMap = new LinkedHashMap<Expression<?>, GroupCollector<?,?>>();
+    private final Map<Expression<?>, GroupCollector<?, ?>> groupCollectorMap = new LinkedHashMap<Expression<?>, GroupCollector<?, ?>>();
 
     private final List<GroupExpression<?, ?>> groupExpressions;
 
-    private final List<GroupCollector<?,?>> groupCollectors = new ArrayList<GroupCollector<?,?>>();
+    private final List<GroupCollector<?, ?>> groupCollectors = new ArrayList<GroupCollector<?, ?>>();
 
     private final List<QPair<?, ?>> maps;
 
-    public GroupImpl(List<GroupExpression<?, ?>> columnDefinitions,  List<QPair<?, ?>> maps) {
+    public GroupImpl(List<GroupExpression<?, ?>> columnDefinitions, List<QPair<?, ?>> maps) {
         this.groupExpressions = columnDefinitions;
         this.maps = maps;
         for (GroupExpression<?, ?> coldef : columnDefinitions) {
@@ -64,7 +63,7 @@ public class GroupImpl implements Group {
 
     @SuppressWarnings("unchecked")
     private <T, R> R get(Expression<T> expr) {
-        GroupCollector<T,R> col = (GroupCollector<T,R>) groupCollectorMap.get(expr);
+        GroupCollector<T, R> col = (GroupCollector<T, R>) groupCollectorMap.get(expr);
         if (col != null) {
             return col.get();
         }
@@ -127,7 +126,7 @@ public class GroupImpl implements Group {
     @Override
     public Object[] toArray() {
         List<Object> arr = new ArrayList<Object>(groupCollectors.size());
-        for (GroupCollector<?,?> col : groupCollectors) {
+        for (GroupCollector<?, ?> col : groupCollectors) {
             arr.add(col.get());
         }
         return arr.toArray();
