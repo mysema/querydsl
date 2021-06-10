@@ -568,7 +568,11 @@ public class ExtendedTypeFactory {
 
         } else {
             String name = typeElement.getQualifiedName().toString();
-            return createType(typeElement, TypeCategory.get(name), declaredType.getTypeArguments(), deep);
+            Type type = createType(typeElement, TypeCategory.get(name), declaredType.getTypeArguments(), deep);
+            if (!type.getCategory().isSubCategoryOf(TypeCategory.COMPARABLE) && isAssignable(declaredType, comparableType)) {
+                type = type.as(TypeCategory.COMPARABLE);
+            }
+            return type;
         }
     }
 
