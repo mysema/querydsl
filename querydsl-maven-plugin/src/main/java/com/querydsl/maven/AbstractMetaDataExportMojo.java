@@ -24,6 +24,7 @@ import com.querydsl.sql.codegen.NamingStrategy;
 import com.querydsl.sql.codegen.support.NumericMapping;
 import com.querydsl.sql.codegen.support.RenameMapping;
 import com.querydsl.sql.codegen.support.TypeMapping;
+import com.querydsl.sql.codegen.support.SQLTypeMapping;
 import com.querydsl.sql.types.Type;
 import org.apache.maven.artifact.manager.WagonManager;
 import org.apache.maven.plugin.AbstractMojo;
@@ -274,6 +275,13 @@ public class AbstractMetaDataExportMojo extends AbstractMojo {
     private RenameMapping[] renameMappings;
 
     /**
+     * SQL type name to Java type mappings
+     *
+     * @parameter
+     */
+    private SQLTypeMapping[] sqlTypeMappings;
+
+    /**
      * switch for generating scala sources
      *
      * @parameter default-value=false
@@ -515,6 +523,12 @@ public class AbstractMetaDataExportMojo extends AbstractMojo {
             }
             if (renameMappings != null) {
                 for (RenameMapping mapping : renameMappings) {
+                    mapping.apply(configuration);
+                }
+            }
+
+            if (sqlTypeMappings != null) {
+                for (SQLTypeMapping mapping : sqlTypeMappings) {
                     mapping.apply(configuration);
                 }
             }
